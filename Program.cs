@@ -31,17 +31,23 @@ namespace HomeWork_29_04
                     System.Console.Write("enter balance: ");
                     client.Balance = decimal.Parse(Console.ReadLine());
                     insertThread.Start(client);
+                    insertThread.Abort();
                 };break;
-                case "2": selectThread.Start();break;
+                case "2": {
+                    selectThread.Start();
+                    selectThread.Abort();
+                    };break;
                 case "3": {
                     System.Console.Write("enter id: ");
                     object id = Console.ReadLine();
                     selectByIdThread.Start(id);
+                    selectByIdThread.Abort();
                 };break;
                 case "4": {
                     System.Console.Write("enter id: ");
                     object id = Console.ReadLine();
                     deleteThread.Start(id);
+                    deleteThread.Abort();
                 };break;
                 case "5": {
                     System.Console.Write("enter id: ");
@@ -52,6 +58,7 @@ namespace HomeWork_29_04
                           oldBalance = client.Balance;
                     }
                     updateThread.Start(id);
+                    updateThread.Abort();
                     foreach(var client in ClientsList){
                     if((int)id == client.Id){
                         newBalance = client.Balance;
@@ -63,7 +70,9 @@ namespace HomeWork_29_04
                 };break;
             }
             System.Console.WriteLine("Do you want to continue?y/n");
-            if(Console.ReadLine() == "y") continue;
+            if(Console.ReadLine() == "y"){ 
+                continue;
+            }
             else break;
             }
             System.Console.WriteLine("Bye");
@@ -97,11 +106,11 @@ namespace HomeWork_29_04
         public static void Select(){
             lock(locker){
                 foreach(var client in ClientsList){                    
-                    System.Console.WriteLine(client.Id);
-                    System.Console.WriteLine(client.Firstname);
-                    System.Console.WriteLine(client.Middlename);
-                    System.Console.WriteLine(client.Lastname);
-                    System.Console.WriteLine(client.Balance);
+                    System.Console.WriteLine($"Id: {client.Id}");
+                    System.Console.WriteLine($"Firstname: {client.Firstname}");
+                    System.Console.WriteLine($"Middlename: {client.Middlename}");
+                    System.Console.WriteLine($"Lastname: {client.Lastname}");
+                    System.Console.WriteLine($"Balance: {client.Balance}");
                 }
             }
         }

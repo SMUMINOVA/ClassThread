@@ -11,10 +11,48 @@ namespace HomeWork_29_04
         static void Main(string[] args)
         {
             Thread insertThread = new Thread( new ParameterizedThreadStart (Insert));
-            Thread selectThread = new Thread(new ParameterizedThreadStart(Select));
+            Thread selectThread = new Thread(new ThreadStart(Select));
             Thread deleteThread = new Thread(new ParameterizedThreadStart(Delete));
             Thread updateThread = new Thread(new ParameterizedThreadStart(Update));
-
+            Thread selectByIdThread = new Thread(new ParameterizedThreadStart(SelectById));
+            System.Console.WriteLine("Hello! Welcom to client server!\nHere you can");
+            start:
+            System.Console.WriteLine("1.Insert client\n2.Select all clients\n3.Select client bi id\n4.delete client\n5.update clients balance");
+            switch(Console.ReadLine()){
+                case "1": {
+                    Client client = new Client();
+                    System.Console.Write("enter firstname: ");
+                    client.Firstname = Console.ReadLine();
+                    System.Console.Write("enter middlename: ");
+                    client.Middlename = Console.ReadLine();
+                    System.Console.Write("enter lastname: ");
+                    client.Lastname = Console.ReadLine();
+                    System.Console.Write("enter balance: ");
+                    client.Balance = decimal.Parse(Console.ReadLine());
+                    insertThread.Start(client);
+                };break;
+                case "2": selectThread.Start();break;
+                case "3": {
+                    System.Console.Write("enter id: ");
+                    object id = Console.ReadLine();
+                    selectByIdThread.Start(id);
+                };break;
+                case "4": {
+                    System.Console.Write("enter id: ");
+                    object id = Console.ReadLine();
+                    deleteThread.Start(id);
+                };break;
+                case "5": {
+                    System.Console.Write("enter id: ");
+                    object id = Console.ReadLine();
+                    decimal CatchBalance = 0;
+                    foreach(var client in ClientsList){
+                        if (client.Id == (int)id)
+                          CatchBalance = client.Balance;
+                    }
+                    updateThread.Start(id);
+                };break;
+            }
         }
         public static void Insert(object obj){
             lock(locker){
@@ -42,7 +80,7 @@ namespace HomeWork_29_04
                 }
             }
         }
-        public static void Select(object obj){
+        public static void Select(){
             lock(locker){
                 foreach(var client in ClientsList){                    
                     System.Console.WriteLine(client.Id);
@@ -69,13 +107,7 @@ namespace HomeWork_29_04
             lock(locker){
                 foreach(var client in ClientsList){
                     if((int)obj == client.Id){
-                        System.Console.Write("enter firstname: ");
-                        client.Firstname = Console.ReadLine();
-                        System.Console.Write("enter middlename: ");
-                        client.Middlename = Console.ReadLine();
-                        System.Console.Write("enter lastname: ");
-                        client.Lastname = Console.ReadLine();
-                        System.Console.Write("enter balance: ");
+                        System.Console.Write("Enter new balance: ");
                         client.Balance = decimal.Parse(Console.ReadLine());
                     }
                 }

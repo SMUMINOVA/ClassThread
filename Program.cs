@@ -8,6 +8,7 @@ namespace HomeWork_29_04
     {
         static object locker = new Object(); 
         public static List<Client> ClientsList = new List<Client>();
+        public static int id{get;set;} = 0;
         static void Main(string[] args)
         {
             TimerCallback start = new TimerCallback(Difference);
@@ -16,10 +17,23 @@ namespace HomeWork_29_04
             Thread deleteThread = new Thread(new ParameterizedThreadStart(Delete));
             Thread updateThread = new Thread(new ParameterizedThreadStart(Update));
             Thread selectByIdThread = new Thread(new ParameterizedThreadStart(SelectById));
+            Client firstClient = new Client("John", "James", "Peter", id++, 1200);
+            ClientsList.Add(firstClient);
+            firstClient = new Client("Billy", "Markus", "Bob", id++, 7300);
+            ClientsList.Add(firstClient);
+            firstClient = new Client("Lara", "James", "Markus", id++, 3800);
+            ClientsList.Add(firstClient);
+            foreach(var client in ClientsList){                    
+                    System.Console.WriteLine($"Id: {client.Id}");
+                    System.Console.WriteLine($"Firstname: {client.Firstname}");
+                    System.Console.WriteLine($"Middlename: {client.Middlename}");
+                    System.Console.WriteLine($"Lastname: {client.Lastname}");
+                    System.Console.WriteLine($"Balance: {client.Balance}");
+                }
             System.Console.WriteLine("Hello! Welcom to client server!\nHere you can");
-            while(true){
-            System.Console.WriteLine("1.Insert client\n2.Select all clients\n3.Select client bi id\n4.delete client\n5.update clients balance");
-            switch(Console.ReadLine()){
+            System.Console.WriteLine("1.Insert client\n2.Select all clients\n3.Select client by id\n4.delete client\n5.update clients balance");
+            string choice = Console.ReadLine();
+            switch(choice){
                 case "1": {
                     Client client = new Client();
                     System.Console.Write("enter firstname: ");
@@ -30,52 +44,43 @@ namespace HomeWork_29_04
                     client.Lastname = Console.ReadLine();
                     System.Console.Write("enter balance: ");
                     client.Balance = decimal.Parse(Console.ReadLine());
+                    client.Id = id++;
                     insertThread.Start(client);
-                    insertThread.Abort();
                 };break;
                 case "2": {
                     selectThread.Start();
-                    selectThread.Abort();
                     };break;
                 case "3": {
                     System.Console.Write("enter id: ");
                     object id = Console.ReadLine();
                     selectByIdThread.Start(id);
-                    selectByIdThread.Abort();
                 };break;
                 case "4": {
                     System.Console.Write("enter id: ");
                     object id = Console.ReadLine();
                     deleteThread.Start(id);
-                    deleteThread.Abort();
                 };break;
                 case "5": {
                     System.Console.Write("enter id: ");
-                    object id = Console.ReadLine();
+                    int id = int.Parse(Console.ReadLine());
                     decimal oldBalance = 0, newBalance = 0;
                     foreach(var client in ClientsList){
-                        if (client.Id == (int)id)
-                          oldBalance = client.Balance;
+                        if(id == client.Id){
+                        oldBalance = client.Balance;
+                    }
                     }
                     updateThread.Start(id);
-                    updateThread.Abort();
                     foreach(var client in ClientsList){
-                    if((int)id == client.Id){
-                        newBalance = client.Balance;
+                    if( id == client.Id){
+                        newBalance = 10000;
                     }
                     else break;
                     decimal[] arr = {oldBalance, newBalance, (decimal)id};
-                    Timer timer = new Timer(start, arr, 2000, 20000);
+                    Timer timer = new Timer(start, arr, 0, 20000);
                     }
                 };break;
             }
-            System.Console.WriteLine("Do you want to continue?y/n");
-            if(Console.ReadLine() == "y"){ 
-                continue;
-            }
-            else break;
-            }
-            System.Console.WriteLine("Bye");
+            Console.ReadLine();
         }
         public static void Insert(object obj){
             lock(locker){
@@ -87,8 +92,9 @@ namespace HomeWork_29_04
         }
         public static void SelectById(object obj){
             lock(locker){
+                int id = int.Parse(obj.ToString());
                 foreach(var client in ClientsList){
-                    if((int)obj == client.Id){
+                    if(id == client.Id){
                         System.Console.WriteLine(client.Id);
                         System.Console.WriteLine(client.Firstname);
                         System.Console.WriteLine(client.Middlename);
@@ -116,8 +122,9 @@ namespace HomeWork_29_04
         }
         public static void Delete(object obj){
             lock(locker){
+                int id = int.Parse(obj.ToString());
                 foreach(var client in ClientsList){
-                    if((int)obj == client.Id){
+                    if(id == client.Id){
                         ClientsList.Remove(client);
                         Console.ForegroundColor = ConsoleColor.Red;
                         System.Console.WriteLine("Client with such id was removed");
@@ -133,15 +140,11 @@ namespace HomeWork_29_04
         }
         public static void Update(object obj){
             lock(locker){
+                int id = int.Parse(obj.ToString());
                 foreach(var client in ClientsList){
-                    if((int)obj == client.Id){
+                    if(id == client.Id){
                         System.Console.Write("Enter new balance: ");
                         client.Balance = decimal.Parse(Console.ReadLine());
-                    }
-                    else {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        System.Console.WriteLine("Client with such id doesn'n exist");
-                        Console.ForegroundColor = ConsoleColor.White;
                     }
                 }
             }

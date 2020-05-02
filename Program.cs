@@ -17,35 +17,46 @@ namespace HomeWork_29_04
             Thread deleteThread = new Thread(new ParameterizedThreadStart(Delete));
             Thread updateThread = new Thread(new ParameterizedThreadStart(Update));
             Thread selectByIdThread = new Thread(new ParameterizedThreadStart(SelectById));
-            Client firstClient = new Client("John", "James", "Peter", id++, 1200);
+            Client firstClient = new Client("John", "James", "Peter", id++);
+            firstClient.ClientsBalance = new Balance();
+            firstClient.ClientsBalance.OldBalance = 1200;
+            firstClient.ClientsBalance.NewBalance = firstClient.ClientsBalance.OldBalance;
             ClientsList.Add(firstClient);
-            firstClient = new Client("Billy", "Markus", "Bob", id++, 7300);
+            firstClient = new Client("Billy", "Markus", "Bob", id++);
+            firstClient.ClientsBalance = new Balance();
+            firstClient.ClientsBalance.OldBalance = 7300;
+            firstClient.ClientsBalance.NewBalance = firstClient.ClientsBalance.OldBalance;
             ClientsList.Add(firstClient);
-            firstClient = new Client("Lara", "James", "Markus", id++, 3800);
+            firstClient = new Client("Lara", "James", "Markus", id++);
+            firstClient.ClientsBalance = new Balance();
+            firstClient.ClientsBalance.OldBalance = 3800;
+            firstClient.ClientsBalance.NewBalance = firstClient.ClientsBalance.OldBalance;
             ClientsList.Add(firstClient);
             foreach(var client in ClientsList){                    
-                    System.Console.WriteLine($"Id: {client.Id}");
-                    System.Console.WriteLine($"Firstname: {client.Firstname}");
-                    System.Console.WriteLine($"Middlename: {client.Middlename}");
-                    System.Console.WriteLine($"Lastname: {client.Lastname}");
-                    System.Console.WriteLine($"Balance: {client.Balance}");
-                }
-            System.Console.WriteLine("Hello! Welcom to client server!\nHere you can");
+                System.Console.WriteLine($"Id: {client.Id}");
+                System.Console.WriteLine($"Firstname: {client.Firstname}");
+                System.Console.WriteLine($"Middlename: {client.Middlename}");
+                System.Console.WriteLine($"Lastname: {client.Lastname}");
+                System.Console.WriteLine($"Balance: {client.ClientsBalance.OldBalance}");
+            }
+            Console.ForegroundColor = ConsoleColor.Green;
+            System.Console.WriteLine("\nHello! Welcom to client server!\nHere you can");
+            Console.ForegroundColor = ConsoleColor.White;
             System.Console.WriteLine("1.Insert client\n2.Select all clients\n3.Select client by id\n4.delete client\n5.update clients balance");
             string choice = Console.ReadLine();
             switch(choice){
                 case "1": {
-                    Client client = new Client();
                     System.Console.Write("enter firstname: ");
-                    client.Firstname = Console.ReadLine();
+                    firstClient.Firstname = Console.ReadLine();
                     System.Console.Write("enter middlename: ");
-                    client.Middlename = Console.ReadLine();
+                    firstClient.Middlename = Console.ReadLine();
                     System.Console.Write("enter lastname: ");
-                    client.Lastname = Console.ReadLine();
+                    firstClient.Lastname = Console.ReadLine();
                     System.Console.Write("enter balance: ");
-                    client.Balance = decimal.Parse(Console.ReadLine());
-                    client.Id = id++;
-                    insertThread.Start(client);
+                    firstClient.ClientsBalance.OldBalance = decimal.Parse(Console.ReadLine());
+                    firstClient.ClientsBalance.NewBalance = firstClient.ClientsBalance.OldBalance;
+                    firstClient.Id = id++;
+                    insertThread.Start(firstClient);
                 };break;
                 case "2": {
                     selectThread.Start();
@@ -59,27 +70,24 @@ namespace HomeWork_29_04
                     System.Console.Write("enter id: ");
                     object id = Console.ReadLine();
                     deleteThread.Start(id);
+                    deleteThread.Join();
+                    selectThread.Start();
                 };break;
                 case "5": {
                     System.Console.Write("enter id: ");
                     int id = int.Parse(Console.ReadLine());
-                    decimal oldBalance = 0, newBalance = 0;
-                    foreach(var client in ClientsList){
-                        if(id == client.Id){
-                        oldBalance = client.Balance;
-                    }
-                    }
                     updateThread.Start(id);
+                    Thread.Sleep(5000);
                     foreach(var client in ClientsList){
-                    if( id == client.Id){
-                        newBalance = 10000;
+                        if (client.Id == id)
+                        firstClient = client;
                     }
-                    else break;
-                    decimal[] arr = {oldBalance, newBalance, (decimal)id};
-                    Timer timer = new Timer(start, arr, 0, 20000);
-                    }
+                    decimal[] arr = {firstClient.ClientsBalance.OldBalance, firstClient.ClientsBalance.NewBalance, (decimal)id};
+                    Timer timer = new Timer(start, arr, 0, 1000);
+                    firstClient.ClientsBalance.OldBalance = firstClient.ClientsBalance.NewBalance;
                 };break;
             }
+            System.Console.WriteLine("bye");
             Console.ReadLine();
         }
         public static void Insert(object obj){
@@ -99,12 +107,7 @@ namespace HomeWork_29_04
                         System.Console.WriteLine(client.Firstname);
                         System.Console.WriteLine(client.Middlename);
                         System.Console.WriteLine(client.Lastname);
-                        System.Console.WriteLine(client.Balance);
-                    }
-                    else {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        System.Console.WriteLine("Client with such id doesn'n exist");
-                        Console.ForegroundColor = ConsoleColor.White;
+                        System.Console.WriteLine(client.ClientsBalance.OldBalance);
                     }
                 }
             }
@@ -116,23 +119,18 @@ namespace HomeWork_29_04
                     System.Console.WriteLine($"Firstname: {client.Firstname}");
                     System.Console.WriteLine($"Middlename: {client.Middlename}");
                     System.Console.WriteLine($"Lastname: {client.Lastname}");
-                    System.Console.WriteLine($"Balance: {client.Balance}");
+                    System.Console.WriteLine($"Balance: {client.ClientsBalance.OldBalance}");
                 }
             }
         }
         public static void Delete(object obj){
             lock(locker){
                 int id = int.Parse(obj.ToString());
-                foreach(var client in ClientsList){
+                foreach(Client client in ClientsList){
                     if(id == client.Id){
                         ClientsList.Remove(client);
                         Console.ForegroundColor = ConsoleColor.Red;
                         System.Console.WriteLine("Client with such id was removed");
-                        Console.ForegroundColor = ConsoleColor.White;
-                    }
-                    else{
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        System.Console.WriteLine("Client with such id doesn'n exist");
                         Console.ForegroundColor = ConsoleColor.White;
                     }
                 }
@@ -144,8 +142,8 @@ namespace HomeWork_29_04
                 foreach(var client in ClientsList){
                     if(id == client.Id){
                         System.Console.Write("Enter new balance: ");
-                        client.Balance = decimal.Parse(Console.ReadLine());
-                    }
+                        client.ClientsBalance.NewBalance = decimal.Parse(Console.ReadLine());
+                    }  
                 }
             }
         }
@@ -153,18 +151,23 @@ namespace HomeWork_29_04
             decimal[] balance = (decimal[])obj;
             if (balance[0] > balance[1]){
                 Console.ForegroundColor = ConsoleColor.Red;
-                System.Console.WriteLine($"Id: {balance[3]}");
+                System.Console.WriteLine($"Id: {balance[2]}");
                 System.Console.WriteLine($"Past Balance: {balance[0]}");
                 System.Console.WriteLine($"New Balance: {balance[1]}");
-                System.Console.WriteLine($"Status: {balance[0] - balance[1]}");
+                System.Console.WriteLine($"Status: {balance[1] - balance[0]}");
+                Console.ForegroundColor = ConsoleColor.White;
+
             }
             else if(balance[0] < balance[1]){
                 Console.ForegroundColor = ConsoleColor.Green;
-                System.Console.WriteLine($"Id: {balance[3]}");
+                System.Console.WriteLine($"Id: {balance[2]}");
                 System.Console.WriteLine($"Past Balance: {balance[0]}");
                 System.Console.WriteLine($"New Balance: {balance[1]}");
-                System.Console.WriteLine($"Status: +{balance[0] - balance[1]}");
+                System.Console.WriteLine($"Status: + {balance[1] - balance[0]}");
+                
+                Console.ForegroundColor = ConsoleColor.White;
             }
+            balance[0] = balance[1];
         }
     }
 }
